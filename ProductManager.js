@@ -5,54 +5,10 @@ class ProductManager {
     this.id = 0
   }
   async getProducts() { 
-    if (!fs.existsSync(this.path)) {
-      fs.promises.writeFile(this.path, JSON.stringify(
-        {
-          id: 1,
-          title: 'producto prueba',
-          description: 'Este es un producto prueba',
-          price: 200,
-          thumbnail: 'Sin imagen',
-          code: 'abc123',
-          stock: 25
-        },
-        {
-          id: 2,
-          title: 'producto prueba2',
-          description: 'Este es un producto prueba',
-          price: 200,
-          thumbnail: 'Sin imagen',
-          code: 'abc124',
-          stock: 25
-        },
-        {
-          id: 3,
-          title: 'producto prueba3',
-          description: 'Este es un producto prueba',
-          price: 200,
-          thumbnail: 'Sin imagen',
-          code: 'abc125',
-          stock: 25
-        },
-        {
-          id: 4,
-          title: 'producto prueba4',
-          description: 'Este es un producto prueba',
-          price: 200,
-          thumbnail: 'Sin imagen',
-          code: 'abc126',
-          stock: 25
-        }
-      ), "utf-8")
-    }
       let readFile = await fs.promises.readFile(this.path, "utf-8")
-      console.log(`Productos: ${readFile}`)
       return readFile
     }
   async addProduct(title, description, price, thumbnail, code, stock) {
-    if (!fs.existsSync(this.path)) {
-      await fs.promises.writeFile(this.path, JSON.stringify([]), "utf-8")
-    }
     let readFile = await fs.promises.readFile(this.path, "utf-8")
     let readProduct = JSON.parse(readFile)
     //Id autoincremental
@@ -75,66 +31,40 @@ class ProductManager {
         console.error('Error: Todos los campos son obligatorios.');
       } else {
         readProduct.push(newProduct)
-        await fs.promises.writeFile(this.path, JSON.stringify(readProduct), "utf-8")
+        await fs.promises.appendFile(this.path, JSON.stringify(readProduct), "utf-8")
         console.log(await fs.promises.readFile(this.path, "utf-8"))
       }
     }
   }
   async getProductById(id) {
-    if (!fs.existsSync(this.path)) {
-      fs.promises.writeFile(this.path, JSON.stringify(
-        {
-          id: 1,
-          title: 'producto prueba',
-          description: 'Este es un producto prueba',
-          price: 200,
-          thumbnail: 'Sin imagen',
-          code: 'abc123',
-          stock: 25
-        },
-        {
-          id: 2,
-          title: 'producto prueba2',
-          description: 'Este es un producto prueba',
-          price: 200,
-          thumbnail: 'Sin imagen',
-          code: 'abc124',
-          stock: 25
-        },
-        {
-          id: 3,
-          title: 'producto prueba3',
-          description: 'Este es un producto prueba',
-          price: 200,
-          thumbnail: 'Sin imagen',
-          code: 'abc125',
-          stock: 25
-        },
-        {
-          id: 4,
-          title: 'producto prueba4',
-          description: 'Este es un producto prueba',
-          price: 200,
-          thumbnail: 'Sin imagen',
-          code: 'abc126',
-          stock: 25
+    try{
+        let getId = parseInt(id)
+        if (getId > 0){
+          let readFile = await fs.promises.readFile(this.path, "utf-8")
+        let readProduct = JSON.parse(readFile)
+        let productById = readProduct.find((product) => product.id == id)
+        if (productById) {
+          console.log(productById)
+          return productById
+        } else {
+          let menssageId = `No se encuentra ningún producto con el ID: ${id}`
+          console.error(menssageId)
+          return menssageId
         }
-      ), "utf-8")
-    }
-    let readFile = await fs.promises.readFile(this.path, "utf-8")
-    let readProduct = JSON.parse(readFile)
-    const idProduct = readProduct.find((product) => product.id === id)
-    if (idProduct) {
-      console.log(idProduct)
-      return idProduct
-    } else {
-      console.error('No existe ningún producto con ese ID')
+      }else{
+        let errorId = 'El ID debe ser un número positivo'
+        console.error(errorId)
+        return errorId
+      }
+      
+    }catch(err){
+      let serverError = `Hubo un problema al leer el archivo ${this.path}`
+      console.error(serverError)
+      console.error(err)
+      return serverError
     }
   }
   async updateProduct(id, title, description, price, thumbnail, code, stock) {
-    if (!fs.existsSync(this.path)) {
-      fs.promises.writeFile(this.path, JSON.stringify([]), "utf-8")
-    }
     let readFile = await fs.promises.readFile(this.path, "utf-8")
     let readProduct = JSON.parse(readFile)
     const idProduct = readProduct.find((product) => product.id === id)
@@ -146,9 +76,6 @@ class ProductManager {
     }
   }
   async deleteProduct(id) {
-    if (!fs.existsSync(this.path)) {
-      fs.promises.writeFile(this.path, JSON.stringify([]), "utf-8")
-    }
     let readFile = await fs.promises.readFile(this.path, "utf-8")
     let readProduct = JSON.parse(readFile)
     const idProduct = readProduct.find((product) => product.id === id)
